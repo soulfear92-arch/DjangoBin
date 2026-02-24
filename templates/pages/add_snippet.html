@@ -1,51 +1,51 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ pagename }} - PythonBin{% endblock %}
-
 {% block content %}
-<div class="row">
-    <div class="col">
-        <h1>{{ pagename }}</h1>
-        <hr>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col">
-        <form action="{% url 'mainapp:add_snippet' %}" method="post">
-            {% csrf_token %}  <!-- 🔥 Обязательно! -->
-            
-            <div class="form-group row">
-                <div class="col-8">
-                    <input type="text" name="name" class="form-control form-control-lg"
-                           placeholder="Название сниппета" required>
-                </div>
-            </div>
-            
-            <div class="form-group row">
-                <div class="col-8">
-                    <select class="form-control" name="lang" required>
-                        <option value="python" selected>Python</option>
-                        <option value="cpp">C++</option>
-                        <option value="javascript">JavaScript</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group row">
-                <div class="col-8">
-                    <textarea name="code" class="form-control" rows="10" 
-                              placeholder="Код сниппета" required></textarea>
-                </div>
-            </div>
-            
-            <div class="form-group row">
-                <div class="col-8">
-                    <input type="submit" class="btn btn-primary btn-block" value="Сохранить">
-                </div>
-            </div>
-        </form>
-    </div>
+<div class="container mt-5">
+    <h2>{{ pagename }}</h2>
+    <hr>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        
+        <div class="mb-3">
+            <label class="form-label">{{ form.name.label }}</label>
+            {{ form.name }}
+            {{ form.name.errors }}
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">{{ form.lang.label }}</label>
+            {{ form.lang }}
+            {{ form.lang.errors }}
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">{{ form.code.label }}</label>
+            {{ form.code }}
+            {{ form.code.errors }}
+        </div>
+        
+        <div class="mb-3 form-check">
+            {{ form.is_public }}
+            <label class="form-check-label" for="{{ form.is_public.id_for_label }}">
+                {{ form.is_public.label }}
+            </label>
+            {% if form.is_public.help_text %}
+                <small class="form-text text-muted">{{ form.is_public.help_text }}</small>
+            {% endif %}
+            {{ form.is_public.errors }}
+        </div>
+        
+        <div class="d-grid gap-2 d-md-flex">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <a href="{% url 'mainapp:my_snippets' %}" class="btn btn-secondary">↩️ Отмена</a>
+        </div>
+    </form>
 </div>
 {% endblock %}

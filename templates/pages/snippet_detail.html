@@ -3,38 +3,47 @@
 {% block title %}{{ snippet.name }} - PythonBin{% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-    <div class="col">
-        <h1>{{ snippet.name }}</h1>
-        <hr>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ pagename }}</h2>
+        {% if user.is_authenticated and snippet.author == user %}
+            <div class="btn-group">
+                <a href="{% url 'mainapp:snippet_edit' snippet_id=snippet.id %}" 
+                   class="btn btn-outline-primary btn-sm">
+                    ✏️ Редактировать
+                </a>
+                <a href="{% url 'mainapp:snippet_delete' snippet_id=snippet.id %}" 
+                   class="btn btn-outline-danger btn-sm">
+                    🗑️ Удалить
+                </a>
+            </div>
+        {% endif %}
     </div>
-</div>
-
-<fieldset disabled>
-   <div class="row disabled mb-3">
-       <div class="col col-8">
-           <label>Название:</label>
-           <input type="text" value="{{ snippet.name }}" class="form-control">
-       </div>
-       <div class="col col-4">
-           <label>Дата создания:</label>
-           <input type="text" value="{{ snippet.creation_date|date:'d.m.Y H:i' }}" class="form-control">
-       </div>
-   </div>
-   
-   <div class="row">
-       <div class="col">
-           <label>Язык: <strong>{{ snippet.lang }}</strong></label>
-           <div class="p-3 h-100" style="border:1px solid #ced4da; border-radius:5px; background: #f8f9fa;">
-               <pre><code class="language-{{ snippet.lang }}">{{ snippet.code }}</code></pre>
-           </div>
-       </div>
-   </div>
-</fieldset>
-
-<div class="mt-4">
-    <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Назад к списку
-    </a>
+    <div class="text-muted small mb-3">
+        <span class="badge bg-secondary">{{ snippet.lang }}</span>
+        <span class="ms-2">👤 {{ snippet.author.username }}</span>
+        <span class="ms-2">📅 {{ snippet.creation_date|date:"d.m.Y H:i" }}</span>
+        {% if not snippet.is_public %}
+            <span class="ms-2 badge bg-warning text-dark">🔒 Частный</span>
+        {% else %}
+            <span class="ms-2 badge bg-success">🌐 Публичный</span>
+        {% endif %}
+    </div>
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <code>{{ snippet.name }}</code>
+        </div>
+        <div class="card-body p-0">
+            <pre class="p-3 mb-0 bg-light"><code>{{ snippet.code }}</code></pre>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{% url 'mainapp:my_snippets' %}" class="btn btn-outline-secondary">
+            ← К моим сниппетам
+        </a>
+        <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-outline-info">
+            👁️ Все публичные сниппеты
+        </a>
+    </div>
 </div>
 {% endblock %}

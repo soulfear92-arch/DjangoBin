@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">⚠️ Подтвердите удаление</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">
+                        Вы действительно хотите удалить сниппет 
+                        <strong>"{{ snippet.name }}"</strong>?
+                    </p>
+                    <p class="text-muted small">
+                        Это действие нельзя отменить.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'mainapp:snippet_detail' snippet_id=snippet.id %}" 
+                               class="btn btn-secondary">
+                                ↩️ Отмена
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                🗑️ Да, удалить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
