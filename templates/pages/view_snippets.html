@@ -1,33 +1,168 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load snippet_filters %}
 
 {% block title %}{{ pagename }} - PythonBin{% endblock %}
 
 {% block content %}
-<div class="col">
-    <table class="table table-striped">
-        <thead class="thead-dark">
-        <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Название</th>
-            <th scope="col">Дата создания</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for snippet in snippets %}
-        <tr>
-            <td scope="row">{{ snippet.id }}</td>
-            <td><a href="{% url 'mainapp:snippet_detail' snippet_id=snippet.id %}">{{ snippet.name }}</a></td>
-            <td>{{ snippet.creation_date|date:"d.m.Y H:i" }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="3" class="text-center">Сниппетов пока нет</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <div align="right">
-        <i style="color: gray;">Всего сниппетов: {{ snippets.count }}</i>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ pagename }}</h2>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'mainapp:add_snippet' %}" class="btn btn-primary">
+                ➕ Добавить сниппет
+            </a>
+        {% endif %}
     </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="lang" class="col-form-label small">Язык:</label>
+                </div>
+                <div class="col-auto">
+                    <select name="lang" id="lang" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">Все языки</option>
+                        {% for lang in languages %}  {# 🔥 Одна переменная! #}
+                        <option value="{{ lang }}" {% if lang_filter == lang %}selected{% endif %}>
+                     {{ lang|title }}  {# 🔥 |title делает "python" → "Python" #}
+                    </option>
+                    {% endfor %}
+                    </select>
+                </div>
+                {% if lang_filter %}
+                <div class="col-auto">
+                    <a href="{% if is_my_snippets %}?mine=1{% else %}?{% endif %}" 
+                       class="btn btn-sm btn-outline-secondary">
+                        ✕ Сбросить
+                    </a>
+                </div>
+                {% endif %}
+                {% if lang_filter %}
+                <div class="col-auto">
+                    <span class="badge bg-info text-dark">
+                        Фильтр: {{ lang_filter|title }}
+                    </span>
+                </div>
+                {% endif %}
+                
+            </form>
+        </div>
+    </div>
+    {% if is_my_snippets %}
+        <div class="alert alert-info mb-4">
+            📋 Показаны только <strong>ваши</strong> сниппеты
+        </div>
+    {% else %}
+        <div class="alert alert-secondary mb-4">
+            🌐 Показаны публичные сниппеты
+            {% if user.is_authenticated %}
+                + ваши частные сниппеты. 
+                <a href="{% url 'mainapp:my_snippets' %}">Показать только мои →</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col" style="width: 5%;">ID</th>
+                            <th scope="col" style="width: 25%;">Название</th>
+                            <th scope="col" style="width: 15%;">Язык</th>
+                            <th scope="col" style="width: 20%;">Автор</th>
+                            <th scope="col" style="width: 15%;">Дата создания</th>
+                            <th scope="col" style="width: 10%;">Статус</th>
+                            <th scope="col" style="width: 10%;">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for snippet in snippets %}
+                        <tr>
+                            <td scope="row">{{ snippet.id }}</td>
+                            <td>
+                                <a href="{% url 'mainapp:snippet_detail' snippet_id=snippet.id %}" 
+                                   class="text-decoration-none">
+                                    {{ snippet.name|truncatechars:30 }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ snippet.get_lang_display }}</span>
+                            </td>
+                            <td>👤 {{ snippet.author.username }}</td>
+                            <td>{{ snippet.creation_date|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                {% if not snippet.is_public %}
+                                    <span class="badge bg-warning text-dark" title="Частный">🔒</span>
+                                {% else %}
+                                    <span class="badge bg-success" title="Публичный">🌐</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.is_authenticated and snippet.author == user %}
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'mainapp:snippet_edit' snippet_id=snippet.id %}" 
+                                           class="btn btn-outline-primary btn-sm" title="Редактировать">
+                                            ✏️
+                                        </a>
+                                        <a href="{% url 'mainapp:snippet_delete' snippet_id=snippet.id %}" 
+                                           class="btn btn-outline-danger btn-sm" title="Удалить">
+                                            🗑️
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted small">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="fas fa-code fa-3x text-muted mb-3 d-block"></i>
+                                <h5 class="text-muted">Сниппетов пока нет</h5>
+                                <p class="text-muted small">
+                                    {% if user.is_authenticated %}
+                                        <a href="{% url 'mainapp:add_snippet' %}" class="btn btn-primary btn-sm mt-2">
+                                            ➕ Добавить первый сниппет
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'mainapp:register' %}" class="btn btn-outline-primary btn-sm mt-2">
+                                            ✨ Зарегистрироваться, чтобы добавить сниппет
+                                        </a>
+                                    {% endif %}
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end mt-3">
+        <i class="text-muted small">
+            {% if lang_filter %}
+                Найдено: {{ snippets.count }} сниппет(ов) (фильтр: {{ lang_filter|title }})
+            {% else %}
+                Всего сниппетов: {{ snippets.count }}
+            {% endif %}
+        </i>
+    </div>
+    <div class="mt-4">
+        {% if is_my_snippets %}
+            <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-outline-info">
+                👁️ Все публичные сниппеты
+            </a>
+        {% else %}
+            {% if user.is_authenticated %}
+                <a href="{% url 'mainapp:my_snippets' %}" class="btn btn-outline-secondary">
+                    📋 Мои сниппеты
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+    
 </div>
 {% endblock %}

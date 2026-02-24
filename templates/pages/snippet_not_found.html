@@ -1,0 +1,38 @@
+{# MainApp/templates/pages/snippet_not_found.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Сниппет не найден — PythonBin{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="mb-4">
+                <i class="fas fa-file-code fa-4x text-muted"></i>
+            </div>
+            <h2 class="text-muted">Сниппет не найден</h2>
+            <p class="lead">
+                Сниппет с номером <strong>#{{ snippet_id }}</strong> не существует.
+            </p>
+            <ul class="text-start text-muted small mb-4">
+                <li>Вы ввели неверный номер</li>
+                <li>Сниппет был удалён</li>
+                <li>Сниппет ещё не создан</li>
+            </ul>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-primary">
+                    👁️ Посмотреть все сниппеты
+                </a>
+                <a href="{% url 'mainapp:add_snippet' %}" class="btn btn-outline-secondary">
+                    Добавить новый
+                </a>
+                <a href="{% url 'mainapp:index' %}" class="btn btn-link">
+                    На главную
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

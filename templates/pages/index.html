@@ -1,62 +1,87 @@
 {% extends 'base.html' %}
-{% load static %}  <!-- 🔥 Если в base.html нет, добавьте здесь -->
+{% load static %}
+
+{% block title %}{{ pagename }} — PythonBin{% endblock %}
 
 {% block content %}
-    <!-- Begin page content -->
-    <div class="container">
-        <div class="row">
-            <div class="col text-center">
-                <h1>{{ pagename }}</h1>
-                <hr>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col">
-                <p>Добро пожаловать, уважаемый пользователь!</p>
-                <p>На этом сайте ты сможешь сохранить свои заготовки кода на различных языках программирования<br>
-                    А также делиться ими с другими пользователями...</p>
-                <hr>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col-4 offset-4">
-                <a href="{% url 'mainapp:add_snippet' %}" class="btn btn-secondary btn-block">
-                    Добавить сниппет
-                </a>
-            </div>
-        </div>
-
-        <div class="row mt-3">
-            <div class="col">
-                <hr>
-                <h4>Найти сниппет по номеру</h4>
-                <form action="{% url 'mainapp:search_snippet' %}" method="get" id="view_snippet_form">
-                    <div class="form-group row">
-                        <label for="snippet_id" class="col-sm-2 col-form-label col-form-label-lg">Номер:</label>
-                        <div class="col-sm-8">
-                            <input type="number" 
-                                   class="form-control form-control-lg" 
-                                   id="snippet_id"
-                                   name="snippet_id"
-                                   placeholder="введите число"
-                                   required>
-                        </div>
-                        <div class="col-sm-2">
-                            <input type="submit" 
-                                   class="form-control form-control-lg btn btn-info" 
-                                   value="Найти">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                </a>
-                <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-outline-info">
-                    👁️ Все публичные сниппеты
-                </a>
-            </div>
-                </form>
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <h1>{{ pagename }}</h1>
+            <hr>
         </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <p class="lead">Добро пожаловать, уважаемый пользователь!</p>
+            <p>
+                На этом сайте ты сможешь сохранить свои заготовки кода на различных языках программирования<br>
+                А также делиться ими с другими пользователями...
+            </p>
+            <hr>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-4 offset-4">
+            <a href="{% url 'mainapp:add_snippet' %}" class="btn btn-secondary btn-block w-100">
+                Добавить сниппет
+            </a>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <hr>
+            <h4 class="mb-3">Найти сниппет по номеру</h4>
+            <form id="view_snippet_form">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text">🔢</span>
+                    <input type="number" 
+                           class="form-control" 
+                           id="snippet_id"
+                           placeholder="Введите номер сниппета"
+                           min="1"
+                           required>
+                    <button type="submit" class="btn btn-info">
+                        Найти
+                    </button>
+                </div>
+            </form>
+            <script>
+            document.getElementById('view_snippet_form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const snippetId = document.getElementById('snippet_id').value.trim();
+                if (snippetId && parseInt(snippetId) > 0) {
+                    window.location.href = `/snippets/${snippetId}/`;
+                } else {
+                    alert('⚠️ Пожалуйста, введите корректный номер сниппета (число больше 0)');
+                    document.getElementById('snippet_id').focus();
+                }
+            });
+            <!-- Поддержка нажатия Enter в поле ввода -->
+            document.getElementById('snippet_id').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.querySelector('#view_snippet_form button[type="submit"]').click();
+                }
+            });
+            </script>
+            <small class="text-muted d-block mt-2">
+                💡 Введите ID сниппета и нажмите "Найти" или Enter
+            </small>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col text-center">
+            <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-outline-info">
+                👁️ Все публичные сниппеты
+            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'mainapp:my_snippets' %}" class="btn btn-outline-secondary ms-2">
+                    📋 Мои сниппеты
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+</div>
 {% endblock %}
