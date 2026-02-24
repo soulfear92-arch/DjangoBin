@@ -1,7 +1,7 @@
 <header>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="{% url 'mainapp:index' %}">
                 <img src="/static/images/logo.png" width="32" height="32" alt="">
                 PythonBin
             </a>
@@ -11,12 +11,14 @@
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                     <li class="nav-item me-2">
-                        <a class="btn btn-outline-secondary" href="">
+                        <!-- 🔥 Добавление сниппета -->
+                        <a class="btn btn-outline-secondary" href="{% url 'mainapp:add_snippet' %}">
                             Добавить сниппет
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-outline-info" href="">
+                        <!-- 🔥 Просмотр списка сниппетов -->
+                        <a class="btn btn-outline-info" href="{% url 'mainapp:snippets_list' %}">
                             Посмотреть сниппеты
                         </a>
                     </li>

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ snippet.name }} - PythonBin{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h1>{{ snippet.name }}</h1>
+        <hr>
+    </div>
+</div>
+
+<fieldset disabled>
+   <div class="row disabled mb-3">
+       <div class="col col-8">
+           <label>Название:</label>
+           <input type="text" value="{{ snippet.name }}" class="form-control">
+       </div>
+       <div class="col col-4">
+           <label>Дата создания:</label>
+           <input type="text" value="{{ snippet.creation_date|date:'d.m.Y H:i' }}" class="form-control">
+       </div>
+   </div>
+   
+   <div class="row">
+       <div class="col">
+           <label>Язык: <strong>{{ snippet.lang }}</strong></label>
+           <div class="p-3 h-100" style="border:1px solid #ced4da; border-radius:5px; background: #f8f9fa;">
+               <pre><code class="language-{{ snippet.lang }}">{{ snippet.code }}</code></pre>
+           </div>
+       </div>
+   </div>
+</fieldset>
+
+<div class="mt-4">
+    <a href="{% url 'mainapp:snippets_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Назад к списку
+    </a>
+</div>
+{% endblock %}
