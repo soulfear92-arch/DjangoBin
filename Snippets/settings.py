@@ -29,7 +29,11 @@ SECRET_KEY = get_random_secret_key()
 #DEBUG = True
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'pythonanywhere.com']#['*']
+ALLOWED_HOSTS = ['127.0.0.1',
+                'georgii92.pythonanywhere.com',
+                'www.georgii92.pythonanywhere.com',
+                'localhost',
+                'pythonanywhere.com',]#['*']
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
@@ -130,7 +134,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
   BASE_DIR / 'static'
 ]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = 'mainapp:login'
