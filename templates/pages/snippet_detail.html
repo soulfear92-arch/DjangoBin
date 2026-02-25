@@ -28,13 +28,12 @@
         {% endif %}
     </div>
     <div class="card">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header bg-dark text-white d-flex justify-content-between">
             <code>{{ snippet.name }}</code>
+            <span class="badge bg-secondary">{{ snippet.get_lang_display }}</span>
         </div>
         <div class="card-body p-0">
-            <pre class="p-3 mb-0 bg-light">
-                <code>{{ snippet.code|format_code }}</code>
-            </pre>
+            <pre><code class="language-{{ snippet.lang|lower }}">{{ snippet.code|escape }}</code></pre>
         </div>
     </div>
     {% if user.is_authenticated %}

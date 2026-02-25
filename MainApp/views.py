@@ -6,6 +6,7 @@ from django.contrib import messages
 from .forms import RegisterForm, SnippetForm, CommentForm
 from django.utils import timezone
 from .models import Snippet, Comment
+from django.contrib.auth import views as auth_views
 
 
 def index_page(request):
@@ -64,20 +65,19 @@ def search_snippet(request):
 
 def register(request):
     if request.user.is_authenticated:
+        messages.info(request, 'Вы уже авторизованы')
         return redirect('mainapp:index')
-    
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f'🎉 Добро пожаловать, {user.username}!')
+            messages.success(request, f'🎉 Добро пожаловать, {user.username}! Аккаунт успешно создан.')
             return redirect('mainapp:index')
         else:
-            messages.error(request, '❌ Исправьте ошибки в форме')
+            messages.error(request, 'Исправьте ошибки в форме регистрации')
     else:
         form = RegisterForm()
-    
     return render(request, 'pages/register.html', {'form': form, 'pagename': 'Регистрация'})
 
 def my_snippets(request):
@@ -110,13 +110,16 @@ def add_snippet_page(request):
             snippet = form.save(commit=False)
             snippet.author = request.user
             snippet.save()
-            messages.success(request, 'Сниппет успешно создан!')
+            messages.success(request, f'Сниппет "{snippet.name}" успешно создан!')
             return redirect('mainapp:my_snippets')
+        else:
+            messages.error(request, 'Исправьте ошибки в форме')
     else:
         form = SnippetForm()
     context = {'pagename': 'Добавление сниппета', 'form': form}
     return render(request, 'pages/add_snippet.html', context)
 
+@login_required
 def snippet_edit(request, snippet_id):
     snippet = get_object_or_404(Snippet, id=snippet_id)
     if snippet.author != request.user:
@@ -126,7 +129,7 @@ def snippet_edit(request, snippet_id):
         form = SnippetForm(request.POST, instance=snippet)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Сниппет обновлён!')
+            messages.success(request, f'Сниппет "{snippet.name}" обновлён!')
             return redirect('mainapp:snippet_detail', snippet_id=snippet.id)
         else:
             messages.error(request, 'Исправьте ошибки в форме')
@@ -140,15 +143,16 @@ def snippet_edit(request, snippet_id):
     }
     return render(request, 'pages/add_snippet.html', context)
 
+@login_required
 def snippet_delete(request, snippet_id):
     snippet = get_object_or_404(Snippet, id=snippet_id)
     if snippet.author != request.user:
-        messages.error(request, '❌ Вы можете удалять только свои сниппеты')
+        messages.error(request, 'Вы можете удалять только свои сниппеты')
         return redirect('mainapp:snippet_detail', snippet_id=snippet_id)
     if request.method == 'POST':
         snippet_name = snippet.name
         snippet.delete()
-        messages.success(request, f'🗑️ Сниппет "{snippet_name}" удалён')
+        messages.success(request, f'🗑️ Сниппет "{snippet_name}" успешно удалён')
         return redirect('mainapp:my_snippets')
     context = {
         'pagename': 'Подтверждение удаления',
@@ -157,9 +161,9 @@ def snippet_delete(request, snippet_id):
     return render(request, 'pages/snippet_confirm_delete.html', context)
 
 
+@login_required
 def add_comment(request, snippet_id):
     snippet = get_object_or_404(Snippet, id=snippet_id)
-    
     if request.method == 'POST':
         form = CommentForm(request.POST, request.FILES)
         if form.is_valid():
@@ -167,10 +171,17 @@ def add_comment(request, snippet_id):
             comment.snippet = snippet
             comment.author = request.user
             comment.save()
-            messages.success(request, '✅ Комментарий добавлен!')
-            return redirect('mainapp:snippet_detail', snippet_id=snippet_id)
+            messages.success(request, 'Комментарий успешно добавлен!')
         else:
-            messages.error(request, '❌ Исправьте ошибки в форме')
-    else:
-        form = CommentForm()
+            messages.error(request, 'Исправьте ошибки в форме комментария')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     return redirect('mainapp:snippet_detail', snippet_id=snippet_id)
+
+@login_required
+def logout_view(request):
+    from django.contrib.auth import logout
+    logout(request)
+    messages.info(request, '👋 Вы успешно вышли из системы')
+    return redirect('mainapp:index')

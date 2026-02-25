@@ -1,15 +1,12 @@
-{% load static %}  <!-- 🔥 Если используются static-файлы -->
+{% load static %}
 
 <header>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <div class="container">
-            <!-- Логотип -->
             <a class="navbar-brand" href="{% url 'mainapp:index' %}">
                 <img src="{% static 'images/logo.png' %}" width="32" height="32" alt="Logo">
                 PythonBin
             </a>
-            
-            <!-- Кнопка гамбургер для мобильных -->
             <button class="navbar-toggler" type="button" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#navbarCollapse" 
@@ -18,21 +15,16 @@
                     aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
-            <!-- Меню навигации -->
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav ms-auto mb-2 mb-md-0">
-                    
                     {% if user.is_authenticated %}
-                        <!-- 🔐 Авторизованный пользователь -->
-                        
-                        <!-- Dropdown с именем пользователя -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" 
                                id="userDropdown" role="button" 
                                data-bs-toggle="dropdown" 
                                aria-expanded="false">
-                                👤 {{ user.username }}
+                                 {{ user.username }}
+                                <span class="badge bg-success ms-1">✓</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
@@ -42,34 +34,30 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <!-- Выход: форма POST для безопасности -->
                                     <form method="post" action="{% url 'mainapp:logout' %}" class="d-inline">
                                         {% csrf_token %}
                                         <button type="submit" class="dropdown-item text-danger border-0 bg-transparent">
-                                            🚪 Выйти
+                                             Выйти
                                         </button>
                                     </form>
                                 </li>
                             </ul>
                         </li>
-                        
-                        <!-- Кнопка "Добавить сниппет" -->
                         <li class="nav-item ms-2">
                             <a class="btn btn-outline-secondary" href="{% url 'mainapp:add_snippet' %}">
-                                ➕ Добавить
+                                 Добавить
                             </a>
                         </li>
                         
                     {% else %}
-                        <!-- 🔓 Гость -->
                         <li class="nav-item">
                             <a class="btn btn-outline-info me-2" href="{% url 'mainapp:login' %}">
-                                🔐 Войти
+                                 Войти
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="btn btn-outline-light" href="{% url 'mainapp:register' %}">
-                                ✨ Регистрация
+                                 Регистрация
                             </a>
                         </li>
                     {% endif %}
