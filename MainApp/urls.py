@@ -2,10 +2,12 @@ from django.urls import path
 from django.views.generic import RedirectView
 from django.contrib.auth import views as auth_views
 from . import views
+from django.contrib import admin
 
 app_name = 'mainapp'
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', views.index_page, name='index'),
      path('snippets/', RedirectView.as_view(
         pattern_name='mainapp:snippets_list',
