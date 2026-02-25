@@ -130,3 +130,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = 'mainapp:login'
 LOGIN_REDIRECT_URL = 'mainapp:index'
 LOGOUT_REDIRECT_URL = 'mainapp:index'
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+ALLOWED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp']
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

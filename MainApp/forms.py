@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Snippet
+from .models import Snippet, Comment
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -60,8 +60,41 @@ class SnippetForm(forms.ModelForm):
             }),
         }
         labels = {
-            'is_public': '🌐 Публичный сниппет (виден всем)',
+            'is_public': 'Публичный сниппет (виден всем)',
         }
         help_texts = {
             'is_public': 'Если снять галочку — сниппет будет виден только вам',
         }
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text', 'image']
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Ваш комментарий...',
+                'maxlength': 500
+            }),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/png,image/jpeg,image/gif,image/webp'
+            }),
+        }
+        labels = {
+            'image': '📎 Прикрепить изображение (опционально)',
+        }
+        help_texts = {
+            'image': 'PNG, JPG, GIF, WebP. Макс. 2MB',
+        }
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        
+        if image:
+            if image.size > 2 * 1024 * 1024:
+                raise forms.ValidationError('Размер файла не должен превышать 2MB')
+            allowed_mime_types = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+            if image.content_type not in allowed_mime_types:
+                raise forms.ValidationError('Недопустимый формат изображения')
+        return image

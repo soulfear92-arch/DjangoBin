@@ -69,11 +69,32 @@
                 <table class="table table-striped table-hover mb-0">
                     <thead class="table-dark">
                         <tr>
-                            <th scope="col" style="width: 5%;">ID</th>
-                            <th scope="col" style="width: 25%;">Название</th>
-                            <th scope="col" style="width: 15%;">Язык</th>
+                            <th scope="col" style="width: 5%;">
+                                <a href="?{% if lang_filter %}lang={{ lang_filter }}&{% endif %}sort={% if sort_field == 'id' %}-id{% else %}id{% endif %}" 
+                                   class="text-decoration-none text-white">
+                                    ID {% if sort_field == 'id' %}🔼{% elif sort_field == '-id' %}🔽{% endif %}
+                                </a>
+                            </th>
+                            <th scope="col" style="width: 25%;">
+                                <a href="?{% if lang_filter %}lang={{ lang_filter }}&{% endif %}sort={% if sort_field == 'name' %}-name{% else %}name{% endif %}" 
+                                   class="text-decoration-none text-white">
+                                    Название {% if sort_field == 'name' %}🔼{% elif sort_field == '-name' %}🔽{% endif %}
+                                </a>
+                            </th>
+                            <th scope="col" style="width: 15%;">
+                                <a href="?{% if lang_filter %}lang={{ lang_filter }}&{% endif %}sort={% if sort_field == 'lang' %}-lang{% else %}lang{% endif %}" 
+                                   class="text-decoration-none text-white">
+                                    Язык {% if sort_field == 'lang' %}🔼{% elif sort_field == '-lang' %}🔽{% endif %}
+                                </a>
+                            </th>
                             <th scope="col" style="width: 20%;">Автор</th>
-                            <th scope="col" style="width: 15%;">Дата создания</th>
+                            <th scope="col" style="width: 15%;">
+                                <a href="?{% if lang_filter %}lang={{ lang_filter }}&{% endif %}sort={% if sort_field == 'creation_date' %}-creation_date{% else %}creation_date{% endif %}" 
+                                   class="text-decoration-none text-white">
+                                    Дата {% if sort_field == 'creation_date' %}🔼{% elif sort_field == '-creation_date' %}🔽{% endif %}
+                                </a>
+                            </th>
+                            
                             <th scope="col" style="width: 10%;">Статус</th>
                             <th scope="col" style="width: 10%;">Действия</th>
                         </tr>

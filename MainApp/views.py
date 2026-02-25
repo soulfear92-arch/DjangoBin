@@ -1,55 +1,40 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db import models
+from django.db.models import Q
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, SnippetForm
+from .forms import RegisterForm, SnippetForm, CommentForm
 from django.utils import timezone
-from .models import Snippet
+from .models import Snippet, Comment
+
 
 def index_page(request):
     context = {'pagename': 'PythonBin'}
     return render(request, 'pages/index.html', context)
 
-#def add_snippet_page(request):
-    """Добавление нового сниппета"""
-    if request.method == 'POST':
-        form = SnippetForm(request.POST)
-        if form.is_valid():
-            snippet = form.save(commit=False)
-            snippet.author = request.user
-            snippet.save()
-            messages.success(request, 'Сниппет успешно создан!')
-            return redirect('mainapp:my_snippets')
-        else:
-            messages.error(request, 'Исправьте ошибки в форме')
-    else:
-        form = SnippetForm()
-    
-    context = {
-        'pagename': 'Добавление сниппета',
-        'form': form,
-    }
-    return render(request, 'pages/add_snippet.html', context)
-
 def snippets_page(request):
-    """Публичный список сниппетов"""
     lang_filter = request.GET.get('lang', '')
+    sort_field = request.GET.get('sort', '-creation_date')
+    allowed_sort_fields = ['id', 'name', 'lang', 'creation_date', '-id', '-name', '-lang', '-creation_date']
+    if sort_field not in allowed_sort_fields:
+        sort_field = '-creation_date'
     languages = Snippet.objects.values_list('lang', flat=True).distinct()
     if request.user.is_authenticated:
         snippets = Snippet.objects.filter(
-            models.Q(is_public=True) | models.Q(author=request.user)
-        ).select_related('author').distinct()
+            Q(is_public=True) | Q(author=request.user)
+        ).select_related('author')
     else:
         snippets = Snippet.objects.filter(is_public=True).select_related('author')
     if lang_filter:
         snippets = snippets.filter(lang=lang_filter)
+    snippets = snippets.order_by(sort_field).distinct()
     context = {
         'pagename': 'Просмотр сниппетов',
-        'snippets': snippets.distinct().order_by('-creation_date'),
+        'snippets': snippets,
         'is_my_snippets': False,
         'lang_filter': lang_filter,
         'languages': languages,
+        'sort_field': sort_field,
     }
     return render(request, 'pages/view_snippets.html', context)
 
@@ -97,24 +82,27 @@ def register(request):
 
 def my_snippets(request):
     lang_filter = request.GET.get('lang', '')
+    sort_field = request.GET.get('sort', '-creation_date')
+    allowed_sort_fields = ['id', 'name', 'lang', 'creation_date', '-id', '-name', '-lang', '-creation_date']
+    if sort_field not in allowed_sort_fields:
+        sort_field = '-creation_date'
     languages = Snippet.objects.values_list('lang', flat=True).distinct()
-    if not request.user.is_authenticated:
-        return redirect('mainapp:login')
-    snippets = Snippet.objects.filter(
-        author=request.user
-    ).select_related('author').order_by('-creation_date')
+    snippets = Snippet.objects.filter(author=request.user).select_related('author')
     if lang_filter:
         snippets = snippets.filter(lang=lang_filter)
+    snippets = snippets.order_by(sort_field).distinct()
     context = {
         'pagename': 'Мои сниппеты',
-        'snippets': snippets.distinct(),
+        'snippets': snippets,
         'is_my_snippets': True,
         'lang_filter': lang_filter,
         'languages': languages,
+        'sort_field': sort_field,
     }
     return render(request, 'pages/view_snippets.html', context)
 
 
+@login_required
 def add_snippet_page(request):
     if request.method == 'POST':
         form = SnippetForm(request.POST)
@@ -133,7 +121,7 @@ def snippet_edit(request, snippet_id):
     snippet = get_object_or_404(Snippet, id=snippet_id)
     if snippet.author != request.user:
         messages.error(request, 'Вы можете редактировать только свои сниппеты')
-        raise get_object_or_404("Доступ запрещён")
+        return redirect('mainapp:snippet_detail', snippet_id=snippet_id)
     if request.method == 'POST':
         form = SnippetForm(request.POST, instance=snippet)
         if form.is_valid():
@@ -167,3 +155,22 @@ def snippet_delete(request, snippet_id):
         'snippet': snippet,
     }
     return render(request, 'pages/snippet_confirm_delete.html', context)
+
+
+def add_comment(request, snippet_id):
+    snippet = get_object_or_404(Snippet, id=snippet_id)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST, request.FILES)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.snippet = snippet
+            comment.author = request.user
+            comment.save()
+            messages.success(request, '✅ Комментарий добавлен!')
+            return redirect('mainapp:snippet_detail', snippet_id=snippet_id)
+        else:
+            messages.error(request, '❌ Исправьте ошибки в форме')
+    else:
+        form = CommentForm()
+    return redirect('mainapp:snippet_detail', snippet_id=snippet_id)
