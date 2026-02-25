@@ -19,12 +19,12 @@
     </div>
     <div class="text-muted small mb-3">
         <span class="badge bg-secondary">{{ snippet.get_lang_display }}</span>
-        <span class="ms-2">👤 {{ snippet.author.username }}</span>
-        <span class="ms-2">📅 {{ snippet.created_at|date:"d.m.Y H:i" }}</span>
+        <span class="ms-2"> {{ snippet.author.username }}</span>
+        <span class="ms-2"> {{ snippet.created_at|date:"d.m.Y H:i" }}</span>
         {% if not snippet.is_public %}
             <span class="ms-2 badge bg-warning text-dark">🔒 Частный</span>
         {% else %}
-            <span class="ms-2 badge bg-success">🌐 Публичный</span>
+            <span class="ms-2 badge bg-success"> Публичный</span>
         {% endif %}
     </div>
     <div class="card">

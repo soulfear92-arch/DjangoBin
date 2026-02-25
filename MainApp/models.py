@@ -1,11 +1,32 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
-from django.core.exceptions import ValidationError
+
+LANGUAGE_CHOICES = [
+    ('', 'Выберите язык...'),
+    ('python', 'Python'),
+    ('javascript', 'JavaScript'),
+    ('java', 'Java'),
+    ('cpp', 'C++'),
+    ('c', 'C'),
+    ('csharp', 'C#'),
+    ('php', 'PHP'),
+    ('ruby', 'Ruby'),
+    ('go', 'Go'),
+    ('rust', 'Rust'),
+    ('swift', 'Swift'),
+    ('kotlin', 'Kotlin'),
+    ('typescript', 'TypeScript'),
+    ('sql', 'SQL'),
+    ('bash', 'Bash/Shell'),
+    ('html', 'HTML'),
+    ('css', 'CSS'),
+    ('other', 'Другой'),
+]
 
 class Snippet(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название")
-    lang = models.CharField(max_length=30, default='python', verbose_name="Язык")
+    lang = models.CharField(max_length=30, choices=LANGUAGE_CHOICES, default='python', verbose_name="Язык")
     code = models.TextField(max_length=5000, verbose_name="Код")
     creation_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='snippets', null=True, blank=True)
@@ -43,6 +64,7 @@ class Comment(models.Model):
     
     def clean(self):
         """Валидация размера файла на уровне модели"""
+        from django.core.exceptions import ValidationError
         if self.image and self.image.size > 2 * 1024 * 1024:
             from django.core.exceptions import ValidationError
             raise ValidationError({'image': 'Размер файла не должен превышать 2MB'})

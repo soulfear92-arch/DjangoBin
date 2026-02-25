@@ -17,7 +17,7 @@ class RegisterForm(UserCreationForm):
         return email
 
 LANGUAGE_CHOICES = [
-    ('', 'Выберите язык...'),  # Пустой вариант по умолчанию
+    ('', 'Выберите язык...'),
     ('python', 'Python'),
     ('javascript', 'JavaScript'),
     ('java', 'Java'),
